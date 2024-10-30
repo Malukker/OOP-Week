@@ -4,14 +4,20 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class Health : MonoBehaviour
 {
     [SerializeField, ValidateInput(nameof(ValidateMaxLife), "incorrect")] int _maxLife;
 
     [ShowNonSerializedField] int _currentLife;
+    public int CurrentLife { get { return _currentLife; } }
 
     [SerializeField] private UnityEvent _onDie;
+
+    public event Action OnDamaged;
+
+    [SerializeField] private Slider _lifebar;
 
     public int CurrentHealth
     {
@@ -84,7 +90,9 @@ public class Health : MonoBehaviour
 
     void Awake()
     {
+        _lifebar.maxValue = _maxLife;
         _currentLife = _maxLife;
+        _lifebar.value = _currentLife;
     }
 
     public void TakeDamage(int damage)
@@ -95,6 +103,8 @@ public class Health : MonoBehaviour
         }
 
         _currentLife = Mathf.Clamp(_currentLife - damage, min: 0, _maxLife);
+        _lifebar.value = _currentLife;
+        OnDamaged?.Invoke();
 
         if (_currentLife <= 0)
         {
@@ -109,6 +119,7 @@ public class Health : MonoBehaviour
         }
 
         _currentLife = Mathf.Clamp(_currentLife + heal, min: 0, _maxLife);
+        _lifebar.value += _currentLife;
     }
 
     void Die()

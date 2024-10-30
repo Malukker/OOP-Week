@@ -17,9 +17,17 @@ public class PlayerController : MonoBehaviour
     Coroutine _moveRoutine;
 
     [SerializeField, BoxGroup("Jump")] InputActionReference _jump;
+    [SerializeField, MinValue(500f), MaxValue(1000f), BoxGroup("Jump")] private float _jumpSpeed = 500f;
+    [SerializeField, BoxGroup("Jump")] float _groundedDecalage;
+    [SerializeField, BoxGroup("Jump")] LayerMask _layerMask;
+    bool _grounded = false;
 
     [SerializeField, BoxGroup("Attack")] InputActionReference _attack;
     [SerializeField, BoxGroup("Attack")] GameObject _attackZone;
+
+    [SerializeField, BoxGroup("Health")] Health _selfHealth;
+
+    private Animator _anim;
 
     enum STATE
     {
@@ -28,6 +36,10 @@ public class PlayerController : MonoBehaviour
         JUMPING = 3,
         STAGGERED = 4,
     }
+
+    bool _isMoving;
+
+    STATE _state = STATE.DEFAULT;
 
     void Start()
     {
@@ -38,54 +50,111 @@ public class PlayerController : MonoBehaviour
         _jump.action.started += StartJump;
 
         _attack.action.started += StartAttack;
+
+        _selfHealth.OnDamaged += GetStaggered;
+
+        _anim = GetComponent<Animator>();
     }
 
     void StartMove(InputAction.CallbackContext obj)
     {
-        _moveRoutine = StartCoroutine(Move());
-
-        IEnumerator Move()
+        if (_state == STATE.DEFAULT || _state == STATE.JUMPING) 
         {
-            while (true)
+            _isMoving = true;
+            _moveRoutine = StartCoroutine(Move());
+
+            IEnumerator Move()
             {
-                var joystickDir = obj.ReadValue<Vector2>();
+                while (true)
+                {
+                    var joystickDir = obj.ReadValue<Vector2>();
 
-                Vector3 realDirection;
-                if(_isCameraBased)
-                { 
-                    realDirection = _cam.transform.forward * joystickDir.y + _cam.transform.right * joystickDir.x;
-                    realDirection.Normalize();
-                    realDirection.y = 0;
+                    Vector3 realDirection;
+                    if (_isCameraBased)
+                    {
+                        realDirection = _cam.transform.forward * joystickDir.y + _cam.transform.right * joystickDir.x;
+                        realDirection.Normalize();
+                        realDirection.y = 0;
+                    }
+                    else realDirection = new Vector3(joystickDir.y, 0, joystickDir.x);
+
+                    _rb.AddForce(realDirection * _speed);
+
+                    transform.LookAt(transform.position + realDirection);
+
+                    yield return new WaitForEndOfFrame();
                 }
-                else realDirection = new Vector3(joystickDir.y, 0, joystickDir.x);
-
-                _rb.AddForce(realDirection * _speed);
-
-                transform.LookAt(transform.position + realDirection);
-
-                yield return new WaitForEndOfFrame();
             }
         }
     }
 
     void StopMove(InputAction.CallbackContext obj)
     {
+        _isMoving = false;
         StopCoroutine(_moveRoutine);
     }
 
     void StartAttack(InputAction.CallbackContext obj)
     {
+        _rb.linearVelocity = Vector3.zero;
+        _state = STATE.ATTACKING;
+    }
 
+    public void ChangeAttackZoneState()
+    {
+        if (_attackZone.activeInHierarchy) _attackZone.SetActive(false);
+        else _attackZone.SetActive(true);
     }
 
     void StartJump(InputAction.CallbackContext obj)
     {
+        _state = STATE.JUMPING;
+        if (_grounded) _rb.AddForce(transform.up * _jumpSpeed);
+    }
 
+    void GetStaggered()
+    {
+        _anim.SetTrigger("IsHit");
+        _rb.linearVelocity = Vector3.zero;
+        _state = STATE.STAGGERED;
+    }
+
+    public void ResetState()
+    {
+        _state = STATE.DEFAULT;
+    }
+
+    private void Update()
+    {
+        _anim.SetBool("IsMoving", _isMoving);
+        _anim.SetBool("IsAttacking", _state == STATE.ATTACKING);
+        _anim.SetBool("IsJumping", !_grounded);
+
+        _grounded = false;
+        Vector3 position = new Vector3(transform.position.x, transform.position.y - _groundedDecalage, transform.position.z);
+        Collider[] results = new Collider[25];
+        int collsNumber = Physics.OverlapSphereNonAlloc(position, .5f, results, _layerMask);
+        if (collsNumber > 1) 
+        { 
+            _grounded = true;
+        }
     }
 
     private void OnDestroy()
     {
         _move.action.started -= StartMove;
         _move.action.canceled -= StopMove;
+
+        _jump.action.started -= StartJump;
+
+        _attack.action.started -= StartAttack;
+
+        _selfHealth.OnDamaged -= GetStaggered;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(new Vector3(transform.position.x, transform.position.y - _groundedDecalage, transform.position.z), .5f);
     }
 }
