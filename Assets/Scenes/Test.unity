@@ -615,6 +615,14 @@ PrefabInstance:
       propertyPath: _cam
       value: 
       objectReference: {fileID: 330585545}
+    - target: {fileID: 2456604047100790106, guid: e340223bef62402409ed87e999783ee0, type: 3}
+      propertyPath: _attack
+      value: 
+      objectReference: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    - target: {fileID: 2456604047100790106, guid: e340223bef62402409ed87e999783ee0, type: 3}
+      propertyPath: _attackZone
+      value: 
+      objectReference: {fileID: 927616404}
     - target: {fileID: 3393787502816751610, guid: e340223bef62402409ed87e999783ee0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.45413256
@@ -718,6 +726,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &927616404 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6893985463893700832, guid: e340223bef62402409ed87e999783ee0, type: 3}
+  m_PrefabInstance: {fileID: 642360484}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1337375235
 GameObject:
   m_ObjectHideFlags: 0
