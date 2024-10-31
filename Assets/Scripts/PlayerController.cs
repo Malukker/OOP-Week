@@ -51,39 +51,36 @@ public class PlayerController : MonoBehaviour
 
         _attack.action.started += StartAttack;
 
-        _selfHealth.OnDamaged += GetStaggered;
+        _selfHealth.OnDamagedPlayer += GetStaggered;
 
         _anim = GetComponent<Animator>();
     }
 
     void StartMove(InputAction.CallbackContext obj)
     {
-        if (_state == STATE.DEFAULT || _state == STATE.JUMPING) 
+        _isMoving = true;
+        _moveRoutine = StartCoroutine(Move());
+
+        IEnumerator Move()
         {
-            _isMoving = true;
-            _moveRoutine = StartCoroutine(Move());
-
-            IEnumerator Move()
+            while (true)
             {
-                while (true)
+                var joystickDir = obj.ReadValue<Vector2>();
+
+                Vector3 realDirection;
+                if (_isCameraBased)
                 {
-                    var joystickDir = obj.ReadValue<Vector2>();
-
-                    Vector3 realDirection;
-                    if (_isCameraBased)
-                    {
-                        realDirection = _cam.transform.forward * joystickDir.y + _cam.transform.right * joystickDir.x;
-                        realDirection.Normalize();
-                        realDirection.y = 0;
-                    }
-                    else realDirection = new Vector3(joystickDir.y, 0, joystickDir.x);
-
-                    _rb.AddForce(realDirection * _speed);
-
-                    transform.LookAt(transform.position + realDirection);
-
-                    yield return new WaitForEndOfFrame();
+                    realDirection = _cam.transform.forward * joystickDir.y + _cam.transform.right * joystickDir.x;
+                    realDirection.Normalize();
+                    realDirection.y = 0;
                 }
+                else realDirection = new Vector3(joystickDir.y, 0, joystickDir.x);
+
+                _rb.AddForce(realDirection * _speed);
+
+                transform.LookAt(transform.position + realDirection);
+
+                yield return new WaitForEndOfFrame();
             }
         }
     }
@@ -131,7 +128,7 @@ public class PlayerController : MonoBehaviour
         _anim.SetBool("IsJumping", !_grounded);
 
         _grounded = false;
-        Vector3 position = new Vector3(transform.position.x, transform.position.y - _groundedDecalage, transform.position.z);
+        Vector3 position = new(transform.position.x, transform.position.y - _groundedDecalage, transform.position.z);
         Collider[] results = new Collider[25];
         int collsNumber = Physics.OverlapSphereNonAlloc(position, .5f, results, _layerMask);
         if (collsNumber > 1) 
@@ -149,7 +146,7 @@ public class PlayerController : MonoBehaviour
 
         _attack.action.started -= StartAttack;
 
-        _selfHealth.OnDamaged -= GetStaggered;
+        _selfHealth.OnDamagedPlayer -= GetStaggered;
     }
 
     private void OnDrawGizmos()

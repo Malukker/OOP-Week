@@ -13,9 +13,9 @@ public class Health : MonoBehaviour
     [ShowNonSerializedField] int _currentLife;
     public int CurrentLife { get { return _currentLife; } }
 
-    [SerializeField] private UnityEvent _onDie;
+    public static event Action<Health> OnDie;
 
-    public event Action OnDamaged;
+    public event Action OnDamagedPlayer;
 
     [SerializeField] bool _hasLifebar;
 
@@ -62,7 +62,7 @@ public class Health : MonoBehaviour
         }
         _maxLife = maxHealth;
         _currentLife = currentHealth;
-        _onDie = null;
+        OnDie = null;
     }
     public Health(int maxHealth)
     {
@@ -71,7 +71,7 @@ public class Health : MonoBehaviour
             throw new AssertionException("MaxHealth must be greater than 0", "Health");
         }
         _maxLife = maxHealth;
-        _onDie = null;
+        OnDie = null;
     }
 
 
@@ -114,7 +114,9 @@ public class Health : MonoBehaviour
         HealingPot.OnPotionPickup += Heal;
     }
 
-    private void TakeDamage(int damage)
+    public static event Action<Health> OnTakeDamage;
+
+    public void TakeDamage(int damage)
     {
         if (damage < 0)
         {
@@ -123,11 +125,12 @@ public class Health : MonoBehaviour
 
         _currentLife = Mathf.Clamp(_currentLife - damage, min: 0, _maxLife);
         if(_hasLifebar) _lifebar.value = _currentLife;
-        OnDamaged?.Invoke();
+        OnDamagedPlayer?.Invoke();
+        OnTakeDamage?.Invoke(this);
 
         if (_currentLife <= 0)
         {
-            //Die();
+            Die();
         }
     }
     private void Heal(int heal)
@@ -157,6 +160,13 @@ public class Health : MonoBehaviour
 
     void Die()
     {
-        _onDie?.Invoke();
+        OnDie?.Invoke(this);
+        Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        PowerUp.OnPowerUp -= ExtendLifebar;
+        HealingPot.OnPotionPickup -= Heal;
     }
 }

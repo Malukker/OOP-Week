@@ -19,4 +19,9 @@ public class CoinCounter : MonoBehaviour
         _totalAmount += value;
         _text.text = _totalAmount.ToString() + " coins";
     }
+
+    private void OnDestroy()
+    {
+        Coin.OnCoinPickup -= UpdateCounter;
+    }
 }

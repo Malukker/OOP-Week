@@ -2113,6 +2113,7 @@ GameObject:
   - component: {fileID: 4952891663499948982}
   - component: {fileID: 186727898009231487}
   - component: {fileID: 7282137031094252825}
+  - component: {fileID: 2603515520254552802}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -2177,9 +2178,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxLife: 100
-  _onDie:
-    m_PersistentCalls:
-      m_Calls: []
   _hasLifebar: 1
   _lifebar: {fileID: 0}
 --- !u!114 &2456604047100790106
@@ -2287,6 +2285,19 @@ CapsuleCollider:
   m_Height: 1.5
   m_Direction: 1
   m_Center: {x: 0, y: 0.75, z: 0}
+--- !u!114 &2603515520254552802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6708300518700083269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d32b513682a551749a41a4c7dad3193d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _particleSystem: {fileID: 4835323591134592643, guid: 3834a690d74ecaf44ad455eec39ea869, type: 3}
 --- !u!1 &6893985463893700832
 GameObject:
   m_ObjectHideFlags: 0

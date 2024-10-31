@@ -12,6 +12,11 @@ public class Hitzone : MonoBehaviour
     public void Awake()
     {
         Attackzone.OnDamageDealt += RegisterDamage;
+
+        if (gameObject.layer != 6)
+        {
+            throw new Exception("This gameobject's layer should be Hitzone");
+        }
     }
 
     private void Update()
@@ -30,5 +35,10 @@ public class Hitzone : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         OnCollision?.Invoke(this, other.gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        Attackzone.OnDamageDealt -= RegisterDamage;
     }
 }

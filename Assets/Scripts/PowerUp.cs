@@ -35,4 +35,9 @@ public class PowerUp : Item
         OnPowerUpDestruction?.Invoke(this);
         Destroy(gameObject);
     }
+
+    private void OnDestroy()
+    {
+        Health.OnLifebarExtension -= UpdateLifebarSize;
+    }
 }

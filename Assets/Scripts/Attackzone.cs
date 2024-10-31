@@ -12,6 +12,11 @@ public class Attackzone : MonoBehaviour
     private void Awake()
     {
         Hitzone.OnCollision += SendDamageToStruckCollider;
+
+        if (gameObject.layer != 7)
+        {
+            throw new Exception("This gameobject's layer should be AttackZone");
+        }
     }
 
     private void Update()
@@ -25,5 +30,10 @@ public class Attackzone : MonoBehaviour
         {
             OnDamageDealt.Invoke(_damage, hitzone);
         }
+    }
+
+    private void OnDestroy()
+    {
+        Hitzone.OnCollision -= SendDamageToStruckCollider;
     }
 }
