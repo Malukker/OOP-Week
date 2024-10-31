@@ -17,7 +17,11 @@ public class Health : MonoBehaviour
 
     public event Action OnDamaged;
 
-    [SerializeField] private Slider _lifebar;
+    [SerializeField] bool _hasLifebar;
+
+    [SerializeField, ShowIf(nameof(_hasLifebar))] private Slider _lifebar;
+    private RectTransform _lifebarRect;
+    private float _lifebarSize;
 
     public int CurrentHealth
     {
@@ -28,6 +32,11 @@ public class Health : MonoBehaviour
     {
         get { return _maxLife; }
         private set { _maxLife = value; }
+    }
+    public float LifebarSize
+    {
+        get { return _lifebarSize; }
+        set { _lifebarSize = value; }
     }
 
     public bool IsDead => _currentLife <= 0;
@@ -90,12 +99,22 @@ public class Health : MonoBehaviour
 
     void Awake()
     {
-        _lifebar.maxValue = _maxLife;
         _currentLife = _maxLife;
-        _lifebar.value = _currentLife;
+
+        if (_hasLifebar)
+        {
+            _lifebar.maxValue = _maxLife;
+            _lifebar.value = _currentLife;
+            _lifebarRect = _lifebar.GetComponent<RectTransform>();
+            _lifebarSize = _lifebarRect.sizeDelta.x;
+
+            PowerUp.OnPowerUp += ExtendLifebar;
+        }
+
+        HealingPot.OnPotionPickup += Heal;
     }
 
-    public void TakeDamage(int damage)
+    private void TakeDamage(int damage)
     {
         if (damage < 0)
         {
@@ -103,7 +122,7 @@ public class Health : MonoBehaviour
         }
 
         _currentLife = Mathf.Clamp(_currentLife - damage, min: 0, _maxLife);
-        _lifebar.value = _currentLife;
+        if(_hasLifebar) _lifebar.value = _currentLife;
         OnDamaged?.Invoke();
 
         if (_currentLife <= 0)
@@ -111,7 +130,7 @@ public class Health : MonoBehaviour
             //Die();
         }
     }
-    public void Heal(int heal)
+    private void Heal(int heal)
     {
         if (heal < 0)
         {
@@ -119,7 +138,21 @@ public class Health : MonoBehaviour
         }
 
         _currentLife = Mathf.Clamp(_currentLife + heal, min: 0, _maxLife);
-        _lifebar.value += _currentLife;
+        if (_hasLifebar) _lifebar.value += _currentLife;
+    }
+
+    public static event Action<float> OnLifebarExtension;
+
+    private void ExtendLifebar(float extension, int upgrade)
+    {
+        if (_hasLifebar) 
+        {
+            _lifebarRect.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, _lifebarRect.offsetMin.x, _lifebarSize + extension);
+            _lifebarSize = _lifebarRect.sizeDelta.x;
+            _currentLife += upgrade;
+            _maxLife += upgrade;
+            OnLifebarExtension?.Invoke(_lifebarSize);
+        }
     }
 
     void Die()

@@ -12,7 +12,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField, BoxGroup("Movement")] private bool _isCameraBased;
     [SerializeField, ShowIf("_isCameraBased"), BoxGroup("Movement")] private Camera _cam;
 
-    [SerializeField, MinValue(20f), MaxValue(60f), BoxGroup("Movement")] float _speed = 10f;
+    [SerializeField, MinValue(0f), MaxValue(60f), BoxGroup("Movement")] float _speed = 10f;
 
     Coroutine _moveRoutine;
 

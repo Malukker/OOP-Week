@@ -2180,6 +2180,7 @@ MonoBehaviour:
   _onDie:
     m_PersistentCalls:
       m_Calls: []
+  _hasLifebar: 1
   _lifebar: {fileID: 0}
 --- !u!114 &2456604047100790106
 MonoBehaviour:
@@ -2196,13 +2197,13 @@ MonoBehaviour:
   _move: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _isCameraBased: 1
   _cam: {fileID: 0}
-  _speed: 20
+  _speed: 15
   _jump: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  _jumpSpeed: 500
-  _groundedDecalage: 0
+  _jumpSpeed: 1000
+  _groundedDecalage: -0.27
   _layerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 55
   _attack: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _attackZone: {fileID: 6893985463893700832}
   _selfHealth: {fileID: 5297610025747507252}
@@ -2245,7 +2246,7 @@ Rigidbody:
   m_GameObject: {fileID: 6708300518700083269}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 0
+  m_Drag: 1
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
